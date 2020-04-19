@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            /* background: url(./Images/World-War-Z.jpg); */
+        }
+
+        section {
+            margin: 20vh auto;
+            width: 50%;
+            height: 55vh;
+            border: 5px solid #ccc;
+        }
+
+        #left {
+            float: left;
+            padding-left: 20%;
+        }
+
+        #right {
+            float: right;
+            padding-right: 20%;
+        }
+
+        #screen {
+            margin: auto;
+            width: 100%;
+            height: 100%;
+            height: 50vh;
+            background: chocolate;
+            cursor: url(./Images/sights.png) 50 50, auto;
+            position: relative;
+        }
+
+        #screen>img {
+            height: 25%;
+            position: absolute;
+        }
+
+        /* #btnStart { */
+        /* position: absolute; */
+        /* bottom: 0%; */
+        /* left: 50%; */
+        /* transform: translateX(-50%); */
+        /* } */
+    </style>
+</head>
+
+<body>
+    <section>
+        <div id="screen"></div>
+        <p id="left">Score: <span id="txtScore">0</span></p>
+        <p style="float: left; padding-left: 20%;"><input type="button" value="Start" id="btnStart">
+        </p>
+        <p id="right">Time Left: <span id="txtTime">10</span></p>
+    </section>
+
+    <script src="./jquery-3.5.0.min.js"></script>
+    <script>
+        $(function () {
+            let score = 0
+            let timeLeft = 10
+            let gameTimer = 0
+            let targetid = 0
+            const rand = function (num) {
+                return Math.round(Math.random() * num)
+            }
+            const moveTarget = function (targetid) {
+                $(`#target${targetid}`).animate({
+                    top: `${rand(75)}%`,
+                    left: `${rand(75)}%`
+                }, 2000, function () {
+                    moveTarget(targetid)
+                })
+            }
+
+
+            $(`#btnStart`).click(function () {
+                $(this).attr(`disabled`, true)
+                score = 0
+                $(`#txtScore`).text(score)
+                $(`#txTime`).text(timeLeft)
+
+
+                gameTimer = setInterval(function () {
+                    timeLeft--
+                    $(`#txtTime`).text(timeLeft)
+                    if (timeLeft == 0) {
+                        clearInterval(gameTimer)
+                        $(`#btnStart`).attr(`disabled`, false)
+                        // console.log($(this));
+                        setTimeout(function () {
+                            alert(`Time's Up`)
+                        }, 100)
+                        $(`#screen img`).remove()
+                    }
+                    else {
+                        const num = rand(10)
+                        if (num > 1) {
+                            // targetid++
+                            $(`#screen`).append(`<img src="./Images/walking2.gif" id="target${targetid}">`)
+                            $(`#target${targetid}`).css({
+                                top: `${rand(75)}%`,
+                                left: `${rand(75)}%`
+                            })
+                            moveTarget(targetid)
+                            targetid++
+                        }
+                    }
+                }, 1000)
+            })
+            $(`#screen`).on(`click`, `img`, function () {
+                $(this).attr(`src`, `./Images/ghost.png`)
+                $(this).stop()
+                $(this).css(`pointer-events`, `none`)
+                score++
+                $(`#txtScore`).text(score)
+            })
+        })
+
+
+
+
+    </script>
+</body>
+
+</html>

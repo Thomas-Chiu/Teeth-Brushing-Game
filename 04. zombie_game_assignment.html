@@ -5,15 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css">
     <style>
-        /* body {
-            background: url(./Images/World-War-Z.jpg);
-        } */
+        body {
+            background: url(./Images/opened_mouth_boy.jpg) no-repeat left/30%;
+        }
 
         section {
             margin: 20vh auto;
-            width: 50%;
-            height: 55vh;
+            width: 40%;
+            height: 60vh;
             border: 5px solid #ccc;
         }
 
@@ -31,15 +32,43 @@
             margin: auto;
             width: 100%;
             height: 100%;
-            height: 50vh;
-            background: chocolate;
-            cursor: url(./Images/sights.png) 50 50, auto;
+            height: 60vh;
+            background: url(./Images/opened_mouth.png) no-repeat center/contain;
+            /* cursor: url(./Images/toothbrush.png) 0 0, auto; */
             position: relative;
         }
 
-        #screen>img {
-            height: 25%;
+        #screen img {
+            width: 10%;
             position: absolute;
+            transition: transform 0.5s;
+        }
+
+        #brush {
+            width: 300px;
+            height: 75px;
+            background: url(./Images/toothbrush.png) no-repeat center center/cover;
+            position: absolute;
+            z-index: 1;
+            display: none;
+        }
+
+        #upperTeeth {
+            width: 80%;
+            height: 20%;
+            border: 1px solid #000;
+            position: absolute;
+            top: 17.5%;
+            left: 10%;
+        }
+
+        #lowerTeeth {
+            width: 80%;
+            height: 20%;
+            border: 1px solid #000;
+            position: absolute;
+            bottom: 15%;
+            left: 10%;
         }
 
         /* #btnStart { */
@@ -53,7 +82,11 @@
 
 <body>
     <section>
-        <div id="screen"></div>
+        <div id="brush"></div>
+        <div id="screen">
+            <div id="upperTeeth"></div>
+            <div id="lowerTeeth"></div>
+        </div>
         <p id="left">Score: <span id="txtScore">0</span></p>
         <p style="float: left; padding-left: 20%;"><input type="button" value="Start" id="btnStart">
         </p>
@@ -64,7 +97,7 @@
     <script>
         $(function () {
             let score = 0
-            let timeLeft = 10
+            let timeLeft = 30
             let gameTimer = 0
             let targetid = 0
             const rand = function (num) {
@@ -78,6 +111,13 @@
                     moveTarget(targetid)
                 })
             }
+
+            $(`#screen`).on(`mousemove`, function (move) {
+                let x = move.pageX
+                let y = move.pageY
+                $(`#brush`).css({ "display": "block", "left": move.pageX, "top": move.pageY });
+                console.log(`X: ${x}, Y: ${y}`);
+            })
 
 
             $(`#btnStart`).click(function () {
@@ -98,12 +138,21 @@
                             alert(`Time's Up`)
                         }, 100)
                         $(`#screen img`).remove()
+                        timeLeft = 10
                     }
                     else {
                         const num = rand(10)
-                        if (num > 1) {
-                            // targetid++
-                            $(`#screen`).append(`<img src="./Images/walking2.gif" id="target${targetid}">`)
+                        if (num > 4) {
+                            $(`#upperTeeth`).append(`<img src="./Images/germ.png" id="target${targetid}">`)
+                            $(`#target${targetid}`).css({
+                                top: `${rand(75)}%`,
+                                left: `${rand(75)}%`
+                            })
+                            moveTarget(targetid)
+                            targetid++
+                        }
+                        else {
+                            $(`#lowerTeeth`).append(`<img src="./Images/germ.png" id="target${targetid}">`)
                             $(`#target${targetid}`).css({
                                 top: `${rand(75)}%`,
                                 left: `${rand(75)}%`
@@ -114,14 +163,33 @@
                     }
                 }, 1000)
             })
-            $(`#screen`).on(`click`, `img`, function () {
-                $(this).attr(`src`, `./Images/ghost.png`)
-                $(this).stop()
+
+
+            $(`#screen`).on(`mouseover`, `img`, function () {
+                $(this).css(`transform`, `rotate(270deg)`)
+                $(this).addClass(`hit`)
                 $(this).css(`pointer-events`, `none`)
                 score++
                 $(`#txtScore`).text(score)
+                setTimeout(function () {
+                    $(`.hit`).attr(`src`, `./Images/ghost.png`)
+                    $(`.hit`).remove()
+                }, 500)
             })
+
         })
+
+
+
+            // setTimeout(function () {
+            // setTimeout(function () {
+            //     $(`#target${targetid}`).remove()
+            // }, 1000)
+            // }, 1000)
+
+
+
+
     </script>
 </body>
 

@@ -4,28 +4,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Brush Those Teeth!</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sigmar+One&display=swap" rel="stylesheet">
     <style>
         body {
-            background: url(./Images/opened_mouth_boy.jpg) no-repeat left/30%;
+            background: linear-gradient(30deg, lightgreen 50%, lightcoral 50%);
+            font-family: 'Sigmar One', cursive;
         }
 
         section {
             margin: 20vh auto;
             width: 40%;
             height: 60vh;
-            border: 5px solid #ccc;
+            border: 5px solid #bbb;
+        }
+
+        #title {
+            width: 15%;
+            position: absolute;
+            top: 12.5%;
+            left: 5%;
         }
 
         #left {
             float: left;
-            padding-left: 20%;
+            padding-left: 10%;
         }
 
         #right {
             float: right;
-            padding-right: 20%;
+            padding-right: 5%;
+        }
+
+        #btnStart {
+            width: 65px;
+            height: 65px;
+            position: absolute;
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Sigmar One', cursive;
+            color: white;
+            text-shadow: 2px 2px 2px #333;
+            box-shadow: 2px 2px 3px #333;
+            border: 1px solid lightcoral;
+            border-radius: 50%;
+            background: lightcoral;
+            cursor: pointer;
         }
 
         #screen {
@@ -34,20 +60,14 @@
             height: 100%;
             height: 60vh;
             background: url(./Images/opened_mouth.png) no-repeat center/contain;
-            /* cursor: url(./Images/toothbrush.png) 0 0, auto; */
             position: relative;
-        }
-
-        #screen img {
-            width: 10%;
-            position: absolute;
-            transition: transform 0.5s;
         }
 
         #brush {
             width: 300px;
             height: 75px;
             background: url(./Images/toothbrush.png) no-repeat center center/cover;
+            /* 一定要設position jQ 才能抓.pageX 和 .pageY */
             position: absolute;
             z-index: 1;
             display: none;
@@ -56,42 +76,54 @@
         #upperTeeth {
             width: 80%;
             height: 20%;
-            border: 1px solid #000;
             position: absolute;
             top: 17.5%;
             left: 10%;
         }
 
+        #innerMouth {
+            width: 60%;
+            height: 27.5%;
+            position: absolute;
+            top: 35%;
+            left: 20%;
+        }
+
         #lowerTeeth {
             width: 80%;
             height: 20%;
-            border: 1px solid #000;
             position: absolute;
             bottom: 15%;
             left: 10%;
         }
 
-        /* #btnStart { */
-        /* position: absolute; */
-        /* bottom: 0%; */
-        /* left: 50%; */
-        /* transform: translateX(-50%); */
-        /* } */
+        .mouthGerm {
+            width: 30%;
+        }
+
+        .teethGerm {
+            width: 10%;
+            position: absolute;
+            transition: transform 0.5s;
+        }
     </style>
 </head>
 
 <body>
     <section>
+        <p id="left">Germs: <span id="txtScore">0</span></p>
+        <p id="right">Time Left: <span id="txtTime">30</span></p>
+        <p><input type="button" value="Start" id="btnStart">
+        </p>
+        <img src="./Images/title.png" id="title">
         <div id="brush"></div>
         <div id="screen">
             <div id="upperTeeth"></div>
+            <div id="innerMouth"></div>
             <div id="lowerTeeth"></div>
         </div>
-        <p id="left">Score: <span id="txtScore">0</span></p>
-        <p style="float: left; padding-left: 20%;"><input type="button" value="Start" id="btnStart">
-        </p>
-        <p id="right">Time Left: <span id="txtTime">10</span></p>
     </section>
+
 
     <script src="./jquery-3.5.0.min.js"></script>
     <script>
@@ -100,6 +132,7 @@
             let timeLeft = 30
             let gameTimer = 0
             let targetid = 0
+            let gameStatus = false
             const rand = function (num) {
                 return Math.round(Math.random() * num)
             }
@@ -111,21 +144,20 @@
                     moveTarget(targetid)
                 })
             }
-
+            // 這裡是用jQ mousemove 讓圖片跟著滑鼠移動，仿cursor 效果
             $(`#screen`).on(`mousemove`, function (move) {
                 let x = move.pageX
                 let y = move.pageY
                 $(`#brush`).css({ "display": "block", "left": move.pageX, "top": move.pageY });
-                console.log(`X: ${x}, Y: ${y}`);
             })
 
-
+            // game function
             $(`#btnStart`).click(function () {
                 $(this).attr(`disabled`, true)
                 score = 0
+                gameStatus = true
                 $(`#txtScore`).text(score)
                 $(`#txTime`).text(timeLeft)
-
 
                 gameTimer = setInterval(function () {
                     timeLeft--
@@ -133,49 +165,87 @@
                     if (timeLeft == 0) {
                         clearInterval(gameTimer)
                         $(`#btnStart`).attr(`disabled`, false)
-                        // console.log($(this));
                         setTimeout(function () {
-                            alert(`Time's Up`)
+                            alert(`Time's Up \n Your Score: ${score}`)
                         }, 100)
                         $(`#screen img`).remove()
-                        timeLeft = 10
+                        timeLeft = 30
                     }
                     else {
                         const num = rand(10)
                         if (num > 4) {
-                            $(`#upperTeeth`).append(`<img src="./Images/germ.png" id="target${targetid}">`)
-                            $(`#target${targetid}`).css({
-                                top: `${rand(75)}%`,
-                                left: `${rand(75)}%`
-                            })
-                            moveTarget(targetid)
-                            targetid++
+                            // 用for 迴圈增加細菌數量
+                            for (let i = 0; i < 8; i++) {
+                                $(`#upperTeeth`).append(`<img src="./Images/germ.png" id="target${targetid}" class="teethGerm">`)
+                                $(`#target${targetid}`).css({
+                                    top: `${rand(75)}%`,
+                                    left: `${rand(75)}%`
+                                })
+                                moveTarget(targetid)
+                                targetid++
+                            }
+                        }
+                        if (num == 1 || num == 3 || num == 5 || num == 7 || num == 9) {
+                            $(`#innerMouth`).append(`<img width="100%" src="./Images/tooth_germ.png" class="animated bounceIn mouthGerm">`)
                         }
                         else {
-                            $(`#lowerTeeth`).append(`<img src="./Images/germ.png" id="target${targetid}">`)
-                            $(`#target${targetid}`).css({
-                                top: `${rand(75)}%`,
-                                left: `${rand(75)}%`
-                            })
-                            moveTarget(targetid)
-                            targetid++
+                            for (let i = 0; i < 8; i++) {
+                                $(`#lowerTeeth`).append(`<img src="./Images/germ.png" id="target${targetid}" class="teethGerm">`)
+                                $(`#target${targetid}`).css({
+                                    top: `${rand(75)}%`,
+                                    left: `${rand(75)}%`
+                                })
+                                moveTarget(targetid)
+                                targetid++
+                            }
                         }
                     }
                 }, 1000)
             })
 
 
-            $(`#screen`).on(`mouseover`, `img`, function () {
-                $(this).css(`transform`, `rotate(270deg)`)
-                $(this).addClass(`hit`)
-                $(this).css(`pointer-events`, `none`)
-                score++
-                $(`#txtScore`).text(score)
-                setTimeout(function () {
-                    $(`.hit`).attr(`src`, `./Images/ghost.png`)
-                    $(`.hit`).remove()
-                }, 500)
+            $(`#upperTeeth`).on(`mouseover`, `img`, function () {
+                if (gameStatus == true) {
+                    $(this).css(`transform`, `rotate(270deg)`)
+                    $(this).addClass(`hit`)
+                    $(this).css(`pointer-events`, `none`)
+                    score++
+                    $(`#txtScore`).text(score)
+                    setTimeout(function () {
+                        $(`#upperTeeth .hit`).remove()
+                    }, 500)
+                }
             })
+
+
+            $(`#lowerTeeth`).on(`mouseover`, `img`, function () {
+                if (gameStatus == true) {
+                    $(this).css(`transform`, `rotate(270deg)`)
+                    $(this).addClass(`hit`)
+                    $(this).css(`pointer-events`, `none`)
+                    score++
+                    $(`#txtScore`).text(score)
+                    setTimeout(function () {
+                        $(`#lowerTeeth .hit`).remove()
+                    }, 500)
+                }
+            })
+
+            $(`#innerMouth`).on(`mouseover`, `img`, function () {
+                if (gameStatus == true) {
+                    console.log(this);
+                    $(this).css(`transform`, `rotate(270deg)`)
+                    $(this).addClass(`hit`)
+                    $(this).css(`pointer-events`, `none`)
+                    $(`#innerMouth .hit`).attr(`src`, `./Images/ghost.png`)
+                    score += 5
+                    $(`#txtScore`).text(score)
+                    setTimeout(function () {
+                        $(`#innerMouth .hit`).remove()
+                    }, 500)
+                }
+            })
+
 
         })
 

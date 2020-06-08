@@ -184,7 +184,7 @@
                         const num = rand(10)
                         if (num > 4) {
                             // 用for 迴圈增加細菌數量
-                            for (let i = 0; i < 8; i++) {
+                            for (let i = 0; i < 3; i++) {
                                 $(`#upperTeeth`).append(`<img src="./Images/germ.png" id="target${targetid}" class="teethGerm">`)
                                 $(`#target${targetid}`).css({
                                     top: `${rand(75)}%`,
@@ -194,11 +194,11 @@
                                 targetid++
                             }
                         }
-                        if (num == 1 || num == 3 || num == 5 || num == 7 || num == 9) {
+                        if (num == 3 || num == 6 || num == 9) {
                             $(`#innerMouth`).append(`<img width="100%" src="./Images/tooth_germ.png" class="animated bounceIn mouthGerm">`)
                         }
                         else {
-                            for (let i = 0; i < 8; i++) {
+                            for (let i = 0; i < 3; i++) {
                                 $(`#lowerTeeth`).append(`<img src="./Images/germ.png" id="target${targetid}" class="teethGerm">`)
                                 $(`#target${targetid}`).css({
                                     top: `${rand(75)}%`,
@@ -258,17 +258,11 @@
 
         })
 
-
-
             // setTimeout(function () {
             // setTimeout(function () {
             //     $(`#target${targetid}`).remove()
             // }, 1000)
             // }, 1000)
-
-
-
-
     </script>
 </body>
 
